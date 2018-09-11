@@ -26,5 +26,9 @@ namespace WireMock.Settings
         /// <inheritdoc cref="IProxyAndRecordSettings.BlackListedHeaders"/>
         [PublicAPI]
         public string[] BlackListedHeaders { get; set; }
+
+        /// <inheritdoc cref="IProxyAndRecordSettings.MatcherAndPatternUsedForHeaders"/>
+        [PublicAPI]
+        public (string Matcher, string Pattern)? MatcherAndPatternUsedForHeaders { get; set; } = ("WildcardMatcher", null);
     }
 }

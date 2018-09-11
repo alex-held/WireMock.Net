@@ -13,13 +13,15 @@ namespace WireMock.Net.Console.Proxy.Net452
                 Urls = new[] { "http://localhost:9091/", "https://localhost:9443/" },
                 StartAdminInterface = true,
                 ReadStaticMappings = false,
+                AllowPartialMapping = false,
                 ProxyAndRecordSettings = new ProxyAndRecordSettings
                 {
                     Url = "https://www.google.com",
                     //ClientX509Certificate2ThumbprintOrSubjectName = "www.yourclientcertname.com OR yourcertificatethumbprint (only if the service you're proxying to requires it)",
                     SaveMapping = true,
                     SaveMappingToFile = false,
-                    BlackListedHeaders = new[] { "dnt", "Content-Length" }
+                    BlackListedHeaders = new[] { "dnt", "Content-Length" },
+                    MatcherAndPatternUsedForHeaders = ("WildcardMatcher", null)
                 }
             });
 

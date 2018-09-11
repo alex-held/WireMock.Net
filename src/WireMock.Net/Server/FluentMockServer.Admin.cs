@@ -238,7 +238,7 @@ namespace WireMock.Server
 
             if (settings.SaveMapping)
             {
-                var mapping = ToMapping(requestMessage, responseMessage, settings.BlackListedHeaders ?? new string[] { });
+                var mapping = ToMapping(requestMessage, responseMessage, settings);
                 _options.Mappings.TryAdd(mapping.Guid, mapping);
 
                 if (settings.SaveMappingToFile)
@@ -250,8 +250,10 @@ namespace WireMock.Server
             return responseMessage;
         }
 
-        private Mapping ToMapping(RequestMessage requestMessage, ResponseMessage responseMessage, string[] blacklistedHeaders)
+        private Mapping ToMapping(RequestMessage requestMessage, ResponseMessage responseMessage, IProxyAndRecordSettings settings)
         {
+            var blacklistedHeaders = settings.BlackListedHeaders ?? Enumerable.Empty<string>();
+
             var request = Request.Create();
             request.WithPath(requestMessage.Path);
             request.UsingMethod(requestMessage.Method);
@@ -264,7 +266,24 @@ namespace WireMock.Server
             {
                 if (!allBlackListedHeaders.Any(b => string.Equals(key, b, StringComparison.OrdinalIgnoreCase)))
                 {
-                    request.WithHeader(key, value.ToArray());
+                    var model = new MatcherModel
+                    {
+                        IgnoreCase = true,
+                        Name = "WildcardMatcher",
+                        Patterns = value.ToArray()
+                    };
+
+                    if (settings.MatcherAndPatternUsedForHeaders != null)
+                    {
+                        model.Name = settings.MatcherAndPatternUsedForHeaders.Value.Matcher;
+                        if (settings.MatcherAndPatternUsedForHeaders.Value.Pattern != null)
+                        {
+                            model.Pattern = settings.MatcherAndPatternUsedForHeaders.Value.Pattern;
+                        }
+                    }
+
+                    var stringMatcher = (IStringMatcher) MatcherMapper.Map(model);
+                    request.WithHeader(key, stringMatcher);
                 }
             });
 
